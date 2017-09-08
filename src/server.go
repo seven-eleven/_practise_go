@@ -7,18 +7,26 @@ import (
 )
 
 func main() {
-	// get args
+	// config
+	err := common.ConfigInit()
+	if nil != err {
+		common.Log("Fatal error: ", err.Error())
+		return
+	}
+
+	// get args: appname, serverip, serverport
 	args := os.Args
 	argc := len(os.Args)
 	if 3 != argc {
 		common.Log("Args num for server error.")
 		return
 	}
-
-	// tcp listen
 	ip := args[1]
 	port := args[2]
 	server := ip + ":" + port
+
+	common.Log("I am a server: ", server)
+
 	netListen, err := net.Listen("tcp", server)
 	if nil != err {
 		common.Log("Tcp listen error.")

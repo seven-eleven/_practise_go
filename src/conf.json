@@ -1,8 +1,10 @@
 {
 	"server_ip_list": "127.0.0.1",
 	"server_port_list": "38677;38678;38679",
+	"server_app_name": "server.exe",
 	
 	"client_num_per_host": 5,
+	"client_app_name": "client.exe",
 	
 	"log_switch": true
 }
