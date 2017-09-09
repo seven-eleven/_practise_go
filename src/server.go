@@ -4,17 +4,18 @@ import (
 	"common"
 	"net"
 	"os"
+	"server"
 )
 
 func main() {
-	// config
+	// 读取配置
 	err := common.ConfigInit()
 	if nil != err {
 		common.Log("Fatal error: ", err.Error())
 		return
 	}
 
-	// get args: appname, serverip, serverport
+	// 传入参数: appname, serverip, serverport
 	args := os.Args
 	argc := len(os.Args)
 	if 3 != argc {
@@ -35,7 +36,7 @@ func main() {
 
 	defer netListen.Close()
 
-	// listen and interact
+	// 侦听连接并启动处理线程
 	var conn net.Conn
 	for {
 		common.Log("Waiting for clients")
@@ -50,21 +51,17 @@ func main() {
 	}
 }
 
+// SERVER线程处理函数
 func serverHandle(conn net.Conn) {
-	if nil == conn {
-		return
-	}
-
 	for {
-		err := common.RecvMsg(conn)
+		msg, err := common.RecvMsg(conn)
 		if nil != err {
 			return
 		}
 
-		ack := "msg ack."
-		err = common.SendMsg(conn, ack)
-		if nil != err {
-			return
+		loop := server.ServerAppMain(conn, msg)
+		if !loop {
+			break
 		}
 	}
 

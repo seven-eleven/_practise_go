@@ -6,7 +6,12 @@ import (
 	"strconv"
 )
 
-// update key - value data to server
+// 构造update消息
+func buildUpdateMsg(key string, value string) string {
+	return common.CmdUpdate + ";" + key + ";" + value
+}
+
+// update key-value操作
 func ClientHandleKeyValue(conn net.Conn) error {
 	key := conn.LocalAddr().String() // ip:port
 
@@ -23,14 +28,14 @@ func ClientHandleKeyValue(conn net.Conn) error {
 	common.KernelUpdate(key, value)
 
 	// update to server
-	msg := key + ";" + value
+	msg := buildUpdateMsg(key, value)
 	err = common.SendMsg(conn, msg)
 	if nil != err {
 		common.Log(err.Error())
 		return err
 	}
 
-	err = common.RecvMsg(conn)
+	msg, err = common.RecvMsg(conn)
 	if nil != err {
 		common.Log(err.Error())
 		return err
@@ -39,9 +44,19 @@ func ClientHandleKeyValue(conn net.Conn) error {
 	return nil
 }
 
+// 构造stop消息
+func buildStopMsg() string {
+	return common.CmdStop + ";"
+}
+
 // send a stop command to server
 func ClientHandleStop(conn net.Conn) {
 
+}
+
+// 构造query消息
+func buildQueryMsg(key string) string {
+	return common.CmdQuery + ";" + key
 }
 
 // query key - value info from server
