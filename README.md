@@ -45,5 +45,5 @@ go build -v -o startup.exe startup.go
 ## 测试  
 基于windows单PC测试，100 CLIENT / 10 SERVER， 长稳3小时测试：  
 CLIENT CPU 1% 内存 6M左右   
-SERVER CPU 3% 内存 7M左右   
-但访问次数达不到预期的每秒10W次，怀疑方向是线程数太多，线程阻塞非常明显，CLIENT无法10ms完成一次操作。  
+SERVER CPU 3% 内存 7M左右  
+但访问次数达不到预期的每秒10W次，怀疑方向是线程数太多，线程阻塞非常明显，CLIENT无法10ms完成一次操作。   
