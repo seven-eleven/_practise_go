@@ -3,6 +3,8 @@ package server
 import (
 	"common"
 	"net"
+	"os"
+	"strconv"
 	"strings"
 )
 
@@ -19,7 +21,7 @@ func ServerAppMain(conn net.Conn, msg string) bool {
 		serverHandleUpdate(conn, content)
 		loop = true
 	case common.CmdQuery:
-		serverHandleQuery(conn, content)
+		serverHandleQuery(conn)
 		loop = false
 	case common.CmdStop:
 		serverHandleStop()
@@ -63,7 +65,7 @@ func serverHandleUpdate(conn net.Conn, content string) {
 	common.KernelUpdate(key, value)
 
 	// 回复确认消息
-	ack := buildAckMsg()
+	ack := buildAck4UpdateMsg()
 	err := common.SendMsg(conn, ack)
 	if nil != err {
 		common.Log(err.Error())
@@ -72,16 +74,43 @@ func serverHandleUpdate(conn net.Conn, content string) {
 }
 
 // SERVER处理query操作
-func serverHandleQuery(conn net.Conn, content string) {
+func serverHandleQuery(conn net.Conn) {
+	// 本地查询
+	var kernelData map[string]string
+	kernelData = common.KernelQueryAll()
 
+	// 回复ACK
+	ack := buildAck4QueryMsg(conn.RemoteAddr().String(), kernelData)
+	err := common.SendMsg(conn, ack)
+	if nil != err {
+		common.Log(err.Error())
+		return
+	}
 }
 
 // SERVER处理stop操作
 func serverHandleStop() {
-
+	common.Log("Receive a 'stop' command, server is down.")
+	os.Exit(666)
 }
 
-// 构造ack消息
-func buildAckMsg() string {
-	return common.CmdAck + ";"
+// 构造ack4update消息
+func buildAck4UpdateMsg() string {
+	return common.CmdAck4Update + ";"
+}
+
+// 构造ack4query消息
+func buildAck4QueryMsg(server string, data map[string]string) string {
+	var msg, content string
+
+	content = "Server: " + server + "\r\n"
+	content += "Num: " + strconv.Itoa(len(data)) + "\r\n"
+	content += "Items:\r\n"
+	for key, value := range data {
+		content += "client: " + key + " count: " + value + "\r\n"
+	}
+
+	msg = common.CmdAck4Query + ";" + content
+
+	return msg
 }

@@ -18,15 +18,15 @@ func main() {
 	serverIps := common.ConfigGetServerIpList()
 	serverPorts := common.ConfigGetServerPortList()
 
-	// connect & communicate to every server
+	// 与所有SERVER进程建立连接并发起数据交互
 	for i := 0; i < len(serverPorts); i++ {
 		server := serverIps[0] + ":" + serverPorts[i]
 
 		client.SetThreadState(i, client.Alive)
-		go client.ConnectToOneServer(server, i, client.ClientHandleKeyValue, true)
+		go client.ConnectToOneServer(server, i, client.ClientHandleUpdate, true)
 	}
 
-	// wait all thread dead
+	// 等待所有子线程退出后主线程退出
 	for {
 		common.Delay1S()
 

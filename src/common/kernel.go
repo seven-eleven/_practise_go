@@ -5,11 +5,11 @@ import (
 	"sync"
 )
 
-var KernelMap = make(map[string]string)
+var kernelMap = make(map[string]string) // key-value存储内核
 
-var rwlock = new(sync.RWMutex)
+var rwlock = new(sync.RWMutex) // 内核操作读写锁
 
-// update data by (key, value)
+// 使用key-value更新内核数据
 func KernelUpdate(key string, value string) {
 	if "" == key {
 		Log("key is null")
@@ -17,21 +17,21 @@ func KernelUpdate(key string, value string) {
 	}
 
 	rwlock.Lock()
-	KernelMap[key] = value
-	Log("kernel write: ", key, ",", value)
+	kernelMap[key] = value
+	//Log("kernel write: ", key, ",", value)
 	rwlock.Unlock()
 }
 
-// query value by key
-func KernelQuery(key string) (string, error) {
+// 使用KEY查询数据
+func KernelQueryByKey(key string) (string, error) {
 	if "" == key {
 		Log("key is null")
 		return "", errors.New("key is null")
 	}
 
 	rwlock.RLock()
-	value, ok := KernelMap[key]
-	Log("kernel read by ", key)
+	value, ok := kernelMap[key]
+	//Log("kernel read by ", key)
 	rwlock.RUnlock()
 
 	if ok {
@@ -39,4 +39,9 @@ func KernelQuery(key string) (string, error) {
 	} else {
 		return "", errors.New("key not found")
 	}
+}
+
+// 查询内核所有数据
+func KernelQueryAll() map[string]string {
+	return kernelMap
 }

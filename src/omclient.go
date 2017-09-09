@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"client"
 	"common"
 	"fmt"
 	"os"
@@ -11,8 +12,9 @@ var inputReader *bufio.Reader
 var inputString string
 var err error
 
+// 操作维护客户端入口
 func main() {
-	common.ConfigInit()
+	common.ConfigInit() // 初始化配置信息
 
 	for {
 		fmt.Println("Please enter a commond: <type 'h' for help; end with ';'>")
@@ -38,6 +40,7 @@ func main() {
 	}
 }
 
+// 打印帮助信息
 func help() {
 	info := `
 		h -- help: get surpport command
@@ -49,11 +52,46 @@ func help() {
 	fmt.Println(info)
 }
 
+// 通知SERVER停止服务
 func stopServers() {
+	serverIps := common.ConfigGetServerIpList()
+	serverPorts := common.ConfigGetServerPortList()
 
+	// 与所有SERVER进程建立连接并发起查询
+	for i := 0; i < len(serverPorts); i++ {
+		server := serverIps[0] + ":" + serverPorts[i]
+
+		go client.ConnectToOneServer(server, i, client.ClientHandleStop, false)
+	}
 }
 
+// 显示SERVER数据
 func displayServerData() {
 	serverIps := common.ConfigGetServerIpList()
 	serverPorts := common.ConfigGetServerPortList()
+
+	// 与所有SERVER进程建立连接并发起查询
+	for i := 0; i < len(serverPorts); i++ {
+		server := serverIps[0] + ":" + serverPorts[i]
+
+		client.SetThreadState(i, client.Alive)
+		go client.ConnectToOneServer(server, i, client.ClientHandleQuery, false)
+	}
+
+	// 等待所有子线程退出后主线程退出
+	for {
+		common.Delay1S()
+
+		mainThreadOver := true
+		for i := 0; i < len(serverPorts); i++ {
+			if client.GetThreadState(i) {
+				mainThreadOver = false
+				break
+			}
+		}
+
+		if mainThreadOver {
+			break
+		}
+	}
 }
