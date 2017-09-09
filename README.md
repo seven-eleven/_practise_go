@@ -14,6 +14,9 @@
 每个SERVER接受到所有CLIENT的数据更新操作，更新本地并回复确认消息  
 对于N * M的架构（N个CLIENT，M个SERVER），存在N * M个链路，但是对于每个CLIENT存在M+1个线程，每个SERVER存在N+1个线程  
 
+对于一个 100 CLIENT / 10 SERVER的系统，客户端每10ms发起一个操作，整系统每秒 100 * 10 * 100 = 10万次操作  
+扩展到10HOST，访问次数可达到10W * 10 * 10 = 1000W次/s  
+
 内核数据存储采用map[string]string结构，key为每个客户端的"IP:PORT"，value为访问次数  
 为保证线程安全，使用了读写锁  
 
@@ -38,3 +41,9 @@ go build -v -o startup.exe startup.go
 - 启动  
 1）执行startup.exe （或对应的其它平台构建得到的可执行程序）。执行完后系统就已经启动，可从操作系统界面看到多个SERVER和CLIENT进程。  
 2）执行omclient.exe (或对应的其它平台构建得到的可执行程序）。获取系统内部信息。  
+
+## 测试  
+基于windows单PC测试，100 CLIENT / 10 SERVER， 长稳3小时测试：  
+CLIENT CPU 1% 内存 6M左右   
+SERVER CPU 3% 内存 7M左右   
+但访问次数达不到预期的每秒10W次，怀疑方向是线程数太多，线程阻塞非常明显，CLIENT无法10ms完成一次操作。  
