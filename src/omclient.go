@@ -1,3 +1,8 @@
+/*
+   操作维护客户端
+   支撑的命令可在程序运行后，输入"h;"获取帮助
+*/
+
 package main
 
 import (
@@ -33,6 +38,8 @@ func main() {
 				stopServers()
 			case "d":
 				displayServerData()
+			case "c":
+				displayConfiguration()
 			default:
 				fmt.Println("Cmd not surpported.")
 			}
@@ -47,6 +54,7 @@ func help() {
 		q -- quit: quit om client
 		s -- stop: stop all the servers
 		d -- display: display server statstistics for 10 times
+		c -- config: display configuration
 	`
 
 	fmt.Println(info)
@@ -58,10 +66,14 @@ func stopServers() {
 	serverPorts := common.ConfigGetServerPortList()
 
 	// 与所有SERVER进程建立连接并发起查询
-	for i := 0; i < len(serverPorts); i++ {
-		server := serverIps[0] + ":" + serverPorts[i]
+	thread := 0
+	for i := 0; i < len(serverIps); i++ {
+		for j := 0; j < len(serverPorts); j++ {
+			server := serverIps[i] + ":" + serverPorts[j]
 
-		go client.ConnectToOneServer(server, i, client.ClientHandleStop, false)
+			go client.ConnectToOneServer(server, thread, client.ClientHandleStop, false)
+			thread++
+		}
 	}
 }
 
@@ -71,11 +83,15 @@ func displayServerData() {
 	serverPorts := common.ConfigGetServerPortList()
 
 	// 与所有SERVER进程建立连接并发起查询
-	for i := 0; i < len(serverPorts); i++ {
-		server := serverIps[0] + ":" + serverPorts[i]
+	thread := 0
+	for i := 0; i < len(serverIps); i++ {
+		for j := 0; j < len(serverPorts); j++ {
+			server := serverIps[i] + ":" + serverPorts[j]
 
-		client.SetThreadState(i, client.Alive)
-		go client.ConnectToOneServer(server, i, client.ClientHandleQuery, false)
+			client.SetThreadState(thread, client.Alive)
+			go client.ConnectToOneServer(server, thread, client.ClientHandleQuery, false)
+			thread++
+		}
 	}
 
 	// 等待所有子线程退出后主线程退出
@@ -83,7 +99,7 @@ func displayServerData() {
 		common.Delay1S()
 
 		mainThreadOver := true
-		for i := 0; i < len(serverPorts); i++ {
+		for i := 0; i < thread; i++ {
 			if client.GetThreadState(i) {
 				mainThreadOver = false
 				break
@@ -94,4 +110,9 @@ func displayServerData() {
 			break
 		}
 	}
+}
+
+// 显示配置信息
+func displayConfiguration() {
+	fmt.Println(common.ConfigString())
 }

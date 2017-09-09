@@ -1,3 +1,7 @@
+/*
+   日志功能
+*/
+
 package common
 
 import (
@@ -19,7 +23,7 @@ func getTimeString(now time.Time) string {
 	return retString
 }
 
-// init for logFile & logSwitch
+// 初始化： 创建日志文件和初始化日志开关
 func logInit() {
 	if "" == logFile {
 		now := time.Now()
@@ -31,10 +35,10 @@ func logInit() {
 		logFile = getTimeString(now) + "_" + strconv.Itoa(os.Getpid()) + "_" + strconv.Itoa(random) + ".log"
 	}
 
-	logSwitch = true
+	logSwitch = ConfigGetLogSwitch()
 }
 
-// check if file exist
+// 检查日志文件是否存在
 func checkFileIsExist(file string) bool {
 	if _, err := os.Stat(file); os.IsNotExist(err) {
 		return false
@@ -43,13 +47,13 @@ func checkFileIsExist(file string) bool {
 	return true
 }
 
-// print log into logFile
+// 打印日志
 func Log(v ...interface{}) {
+	logInit()
+
 	if !logSwitch {
 		return
 	}
-
-	logInit()
 
 	var fd *os.File
 	var err error

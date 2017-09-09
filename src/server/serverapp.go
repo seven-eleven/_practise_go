@@ -1,3 +1,8 @@
+/*
+   SERVER进程消息处理
+   包括消息解析、分发、处理和响应
+*/
+
 package server
 
 import (
@@ -80,7 +85,7 @@ func serverHandleQuery(conn net.Conn) {
 	kernelData = common.KernelQueryAll()
 
 	// 回复ACK
-	ack := buildAck4QueryMsg(conn.RemoteAddr().String(), kernelData)
+	ack := buildAck4QueryMsg(conn.LocalAddr().String(), kernelData)
 	err := common.SendMsg(conn, ack)
 	if nil != err {
 		common.Log(err.Error())

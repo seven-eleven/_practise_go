@@ -1,3 +1,7 @@
+/*
+   规格定义
+*/
+
 package common
 
 const (

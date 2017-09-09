@@ -1,3 +1,7 @@
+/*
+   延时处理
+*/
+
 package common
 
 import (
@@ -14,9 +18,9 @@ func Delay1MS() {
 	time.Sleep(time.Millisecond)
 }
 
-// delay 100ms
-func Delay100MS() {
-	time.Sleep(100 * time.Millisecond)
+// delay n ms
+func DelayNMS(n int) {
+	time.Sleep(time.Duration(n) * time.Millisecond)
 }
 
 // delay 1s = 1000ms

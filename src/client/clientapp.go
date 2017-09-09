@@ -1,3 +1,9 @@
+/*
+   CLIENT的消息处理
+   包括KEY-VALUE更新交互，操作维护客户端的查询和停止服务操作
+   还涉及消息打包和解析
+*/
+
 package client
 
 import (

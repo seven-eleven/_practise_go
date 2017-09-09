@@ -1,4 +1,7 @@
-// client.go
+/*
+   客户端程序
+   每个CLIENT向所有SERVER进程建立连接，并不停发送key-value更新操作
+*/
 package main
 
 import (
@@ -7,6 +10,7 @@ import (
 )
 
 func main() {
+	// 初始化配置
 	err := common.ConfigInit()
 	if nil != err {
 		common.Log("Fatal error: ", err.Error())
@@ -19,11 +23,15 @@ func main() {
 	serverPorts := common.ConfigGetServerPortList()
 
 	// 与所有SERVER进程建立连接并发起数据交互
-	for i := 0; i < len(serverPorts); i++ {
-		server := serverIps[0] + ":" + serverPorts[i]
+	thread := 0
+	for i := 0; i < len(serverIps); i++ {
+		for j := 0; j < len(serverPorts); j++ {
+			server := serverIps[i] + ":" + serverPorts[j]
 
-		client.SetThreadState(i, client.Alive)
-		go client.ConnectToOneServer(server, i, client.ClientHandleUpdate, true)
+			client.SetThreadState(thread, client.Alive)
+			go client.ConnectToOneServer(server, thread, client.ClientHandleUpdate, true)
+			thread++
+		}
 	}
 
 	// 等待所有子线程退出后主线程退出
@@ -31,7 +39,7 @@ func main() {
 		common.Delay1S()
 
 		mainThreadOver := true
-		for i := 0; i < len(serverPorts); i++ {
+		for i := 0; i < thread; i++ {
 			if client.GetThreadState(i) {
 				mainThreadOver = false
 				break

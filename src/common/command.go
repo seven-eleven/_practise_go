@@ -1,3 +1,7 @@
+/*
+   系统支持的操作命令定义
+*/
+
 // command.go
 package common
 

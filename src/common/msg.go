@@ -1,3 +1,7 @@
+/*
+   消息收发处理
+*/
+
 package common
 
 import (

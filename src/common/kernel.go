@@ -1,3 +1,7 @@
+/*
+   提供KEY-VALUE数据存储内核和操作API
+*/
+
 package common
 
 import (
@@ -18,7 +22,6 @@ func KernelUpdate(key string, value string) {
 
 	rwlock.Lock()
 	kernelMap[key] = value
-	//Log("kernel write: ", key, ",", value)
 	rwlock.Unlock()
 }
 
@@ -31,7 +34,6 @@ func KernelQueryByKey(key string) (string, error) {
 
 	rwlock.RLock()
 	value, ok := kernelMap[key]
-	//Log("kernel read by ", key)
 	rwlock.RUnlock()
 
 	if ok {
@@ -43,5 +45,13 @@ func KernelQueryByKey(key string) (string, error) {
 
 // 查询内核所有数据
 func KernelQueryAll() map[string]string {
-	return kernelMap
+	retMap := map[string]string{}
+
+	rwlock.RLock()
+	for key, value := range kernelMap {
+		retMap[key] = value
+	}
+	rwlock.RUnlock()
+
+	return retMap
 }
