@@ -57,11 +57,7 @@ func Log(v ...interface{}) {
 
 	var fd *os.File
 	var err error
-	if checkFileIsExist(logFile) {
-		fd, err = os.OpenFile(logFile, os.O_APPEND, 0666)
-	} else {
-		fd, err = os.Create(logFile)
-	}
+	fd, err = os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if nil != err {
 		fmt.Println(err.Error())
 		return
